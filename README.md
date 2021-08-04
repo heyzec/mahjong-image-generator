@@ -1,0 +1,1 @@
+# mahjong-image-generator
