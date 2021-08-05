@@ -66,7 +66,9 @@ foreach ($output as $tile) {
 	}
 }
 
-echo header('Location: '.'temp.png');
+header("Content-Type: image/png");
+header("Content-Length: " . filesize("temp.png"));
+readfile("temp.png"); 
 
 
 ?>
