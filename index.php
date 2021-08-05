@@ -4,6 +4,7 @@
 
 $q = $_GET['q'];
 function mergeImages($img1_path, $img2_path) {
+	global $q;
 	list($img1_width, $img1_height) = getimagesize($img1_path);
 	list($img2_width, $img2_height) = getimagesize($img2_path);
 
@@ -27,7 +28,7 @@ function mergeImages($img1_path, $img2_path) {
 	//save file or output to broswer
 	$SAVE_AS_FILE = TRUE;
 	if( $SAVE_AS_FILE ){
-	    $save_path = "temp.png";
+	    $save_path = "temp_".$q."png";
 	    imagepng($merged_image,$save_path);
 	}
 
@@ -56,17 +57,18 @@ $firstRun = true;
 foreach ($output as $tile) {
 	$filename = "tiles/".$tile.".png";
 	if ($firstRun) {
-		copy($filename, "temp.png");
+		copy($filename, "temp_".$q."png");
 		$firstRun = false;
 	} else {
-		mergeImages("temp.png", $filename);
+		mergeImages("temp_".$q."png", $filename);
 	}
 }
 
 header("Content-Type: image/png");
 # header("Content-Length: " . filesize("temp.png"));
 # echo "HAI";
-readfile("temp.png"); 
+readfile("temp_".$q."png"); 
+unlink("temp_".$q."png");
 
 
 ?>
