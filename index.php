@@ -54,7 +54,6 @@ for ($i = 0; $i < strlen($q); $i++) {
 }
 
 
-print_r($output);
 $firstRun = true;
 foreach ($output as $tile) {
 	$filename = "tiles/".$tile.".png";
@@ -67,7 +66,8 @@ foreach ($output as $tile) {
 }
 
 header("Content-Type: image/png");
-header("Content-Length: " . filesize("temp.png"));
+# header("Content-Length: " . filesize("temp.png"));
+# echo "HAI";
 readfile("temp.png"); 
 
 
