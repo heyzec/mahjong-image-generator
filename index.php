@@ -12,8 +12,6 @@ function mergeImages($img1_path, $img2_path) {
 	//get highest
 	$merged_height = $img1_height > $img2_height ? $img1_height : $img2_height;
 
-	echo $merged_width . $merged_height;
-
 	$merged_image = imagecreatetruecolor($merged_width, $merged_height);
 
 	imagealphablending($merged_image, false);
