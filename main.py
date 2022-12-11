@@ -1,14 +1,14 @@
 from io import BytesIO
 
 from flask import Flask, request, send_file
-from werkzeug import exceptions
-from waitress import serve
 from PIL import Image
+from waitress import serve
+from werkzeug import exceptions
 
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
-def result():
+def handle():
     if 'q' not in request.args:
         raise exceptions.BadRequest("Please specify mahjong hand in the parameter q.")
 
@@ -19,21 +19,30 @@ def result():
     output = []
     temp = []
 
-    for i in range(len(q)):
-        if q[i].isdigit():
-            temp.append(q[i])
-        elif q[i] in "mpsz":
-            for ch in temp:
-                output.append(ch + q[i])
+    for ch in q:
+        if ch.isdigit():
+            temp.append(ch)
+        elif ch in "mpsz":
+            for ch2 in temp:
+                output.append(ch2 + ch)
             temp = []
         else:
-            raise exceptions.BadRequest(f"The queried hand contains an unrecognised character: {q[i]}")
+            raise exceptions.BadRequest(f"The queried hand contains an unrecognised character: {ch}")
 
     imgs = []
     for tile in output:
         filename = f"tiles/{tile}.png"
         imgs.append(Image.open(filename))
 
+    new_img = combine_imgs(imgs)
+    img_io = BytesIO()
+    new_img.save(img_io, 'PNG')
+    img_io.seek(0)
+
+    return send_file(img_io, mimetype='image/png')
+
+def combine_imgs(imgs):
+    """Concatenates multiple Images horizontally."""
     total_width = sum(map(lambda img: img.size[0], imgs))
     max_height = max(map(lambda img: img.size[1], imgs))
 
@@ -44,11 +53,8 @@ def result():
         new_img.paste(img, (x_offset, 0))
         x_offset += img.size[0]
 
-    img_io = BytesIO()
-    new_img.save(img_io, 'PNG')
-    img_io.seek(0)
+    return new_img
 
-    return send_file(img_io, mimetype='image/png')
 
 
 if __name__ == '__main__':
