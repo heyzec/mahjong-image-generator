@@ -1,6 +1,7 @@
 from io import BytesIO
 
 from flask import Flask, request, send_file
+from werkzeug import exceptions
 from waitress import serve
 from PIL import Image
 
@@ -8,7 +9,13 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
 def result():
+    if 'q' not in request.args:
+        raise exceptions.BadRequest("Please specify mahjong hand in the parameter q.")
+
     q = request.args['q']
+    if q == "":
+        raise exceptions.BadRequest("The hand is empty!")
+
     output = []
     temp = []
 
@@ -20,8 +27,7 @@ def result():
                 output.append(ch + q[i])
             temp = []
         else:
-            raise Exception()
-
+            raise exceptions.BadRequest(f"The queried hand contains an unrecognised character: {q[i]}")
 
     imgs = []
     for tile in output:
