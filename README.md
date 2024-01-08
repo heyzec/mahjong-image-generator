@@ -6,7 +6,7 @@ Generates an image of a mahjong hand represented using ["MPSZ algebraic notation
 
 ## Try it out!
 
-https://mahjong-image-generator.up.railway.app/?q=23467p13m1157s777z
+https://mahjong-image-generator.onrender.com/?q=23467p13m1157s777z
 
 ## Built with
 - [Flask](https://flask.palletsprojects.com/)
