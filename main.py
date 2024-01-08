@@ -1,11 +1,20 @@
 from io import BytesIO
-import base64
 
+from flask import Flask, request, send_file
 from PIL import Image
+from waitress import serve
+from werkzeug import exceptions
 
+app = Flask(__name__)
 
-def handle(event: dict, _):
-    q = event['queryStringParameters']['q']
+@app.route('/', methods=['GET'])
+def handle():
+    if 'q' not in request.args:
+        raise exceptions.BadRequest("Please specify mahjong hand in the parameter q.")
+
+    q = request.args['q']
+    if q == "":
+        raise exceptions.BadRequest("The hand is empty!")
 
     output = []
     temp = []
@@ -18,7 +27,7 @@ def handle(event: dict, _):
                 output.append(ch2 + ch)
             temp = []
         else:
-            raise Exception(f"The queried hand contains an unrecognised character: {ch}")
+            raise exceptions.BadRequest(f"The queried hand contains an unrecognised character: {ch}")
 
     imgs = []
     for tile in output:
@@ -30,17 +39,7 @@ def handle(event: dict, _):
     new_img.save(img_io, 'PNG')
     img_io.seek(0)
 
-    # return send_file(img_io, mimetype='image/png')
-    # return {
-    #     'statusCode': 200,
-    #     'body': img_io.read()
-    # }
-    return {
-        'headers': { "Content-Type": "image/png" },
-        'statusCode': 200,
-        'body': base64.b64encode(img_io.read()).decode('utf-8'),
-        'isBase64Encoded': True
-    }
+    return send_file(img_io, mimetype='image/png')
 
 def combine_imgs(imgs):
     """Concatenates multiple Images horizontally."""
@@ -56,3 +55,7 @@ def combine_imgs(imgs):
 
     return new_img
 
+
+
+if __name__ == '__main__':
+    serve(app, host='0.0.0.0', port=5000)
