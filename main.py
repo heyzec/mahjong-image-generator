@@ -5,6 +5,8 @@ from PIL import Image
 from waitress import serve
 from werkzeug import exceptions
 
+PORT = 5000
+
 app = Flask(__name__)
 
 @app.route('/', methods=['GET'])
@@ -58,4 +60,9 @@ def combine_imgs(imgs):
 
 
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=5000)
+    print(f"Start server on port {PORT}")
+    try:
+        serve(app, host='0.0.0.0', port=PORT)
+    except Exception as e:
+        print(f"An error has occurred: {e}")
+
