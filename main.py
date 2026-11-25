@@ -9,12 +9,13 @@ PORT = 5000
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET'])
+
+@app.route("/", methods=["GET"])
 def handle():
-    if 'q' not in request.args:
+    if "q" not in request.args:
         raise exceptions.BadRequest("Please specify mahjong hand in the parameter q.")
 
-    q = request.args['q']
+    q = request.args["q"]
     if q == "":
         raise exceptions.BadRequest("The hand is empty!")
 
@@ -29,7 +30,9 @@ def handle():
                 output.append(ch2 + ch)
             temp = []
         else:
-            raise exceptions.BadRequest(f"The queried hand contains an unrecognised character: {ch}")
+            raise exceptions.BadRequest(
+                f"The queried hand contains an unrecognised character: {ch}"
+            )
 
     imgs = []
     for tile in output:
@@ -38,17 +41,18 @@ def handle():
 
     new_img = combine_imgs(imgs)
     img_io = BytesIO()
-    new_img.save(img_io, 'PNG')
+    new_img.save(img_io, "PNG")
     img_io.seek(0)
 
-    return send_file(img_io, mimetype='image/png')
+    return send_file(img_io, mimetype="image/png")
+
 
 def combine_imgs(imgs):
     """Concatenates multiple Images horizontally."""
     total_width = sum(map(lambda img: img.size[0], imgs))
     max_height = max(map(lambda img: img.size[1], imgs))
 
-    new_img = Image.new('RGB', (total_width, max_height))
+    new_img = Image.new("RGB", (total_width, max_height))
 
     x_offset = 0
     for img in imgs:
@@ -58,11 +62,15 @@ def combine_imgs(imgs):
     return new_img
 
 
+@app.after_request
+def apply_cache_control(response):
+    response.headers["Cache-Control"] = "public, max-age=31536000, immutable"  # 1 year
+    return response
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print(f"Start server on port {PORT}")
     try:
-        serve(app, host='0.0.0.0', port=PORT)
+        serve(app, host="0.0.0.0", port=PORT)
     except Exception as e:
         print(f"An error has occurred: {e}")
-
